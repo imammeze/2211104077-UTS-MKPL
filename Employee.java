@@ -19,6 +19,7 @@ public class Employee {
 	private int monthJoined;
 	private int dayJoined;
 	private int monthWorkingInYear;
+	private LocalDate joinDate = LocalDate.of(yearJoined, monthJoined, dayJoined);
 	
 	private boolean isForeigner;
 	private Gender gender;
@@ -95,18 +96,23 @@ public class Employee {
 		childNames.add(childName);
 		childIdNumbers.add(childIdNumber);
 	}
+
+	public boolean isMarried() {
+    return spouseIdNumber != null && !spouseIdNumber.isEmpty();
+}
+
 	
 	public int getAnnualIncomeTax() {
-		
-		//Menghitung berapa lama pegawai bekerja dalam setahun ini, jika pegawai sudah bekerja dari tahun sebelumnya maka otomatis dianggap 12 bulan.
-		LocalDate date = LocalDate.now();
-		
-		if (date.getYear() == yearJoined) {
-			monthWorkingInYear = date.getMonthValue() - monthJoined;
-		}else {
-			monthWorkingInYear = 12;
-		}
-		
-		return TaxFunction.calculateTax(monthlySalary, otherMonthlyIncome, monthWorkingInYear, annualDeductible, spouseIdNumber.equals(""), childIdNumbers.size());
-	}
+        LocalDate now = LocalDate.now();
+        int monthWorkingInYear = (now.getYear() == joinDate.getYear()) ? (now.getMonthValue() - joinDate.getMonthValue()) : 12;
+
+        return TaxFunction.calculateTax(
+            monthlySalary,
+            otherMonthlyIncome,
+            monthWorkingInYear,
+            annualDeductible,
+            isMarried(),
+            childIdNumbers.size()
+        );
+    }
 }
